@@ -61,6 +61,28 @@ class TestRakeHooks < Test::Unit::TestCase
     execute(:supertask)
     assert_equal "superwadus", Store.to_s
   end
+  
+  def test_before_with_namespace
+    namespace :db do
+      task :supertask1 do Store << "wadus1" ; end
+      task :supertask2 do Store << "wadus2" ; end
+    end
+    before  "db:supertask2" do Store << "super" ; end
+    execute("db:supertask2")
+    assert_equal "superwadus2", Store.to_s
+  end 
+  
+  def test_before_with_double_namespace
+    namespace :db do
+      namespace :test do
+        task :supertask1 do Store << "wadus1" ; end
+        task :supertask2 do Store << "wadus2" ; end
+      end
+    end
+    before  "db:test:supertask2" do Store << "super" ; end
+    execute("db:test:supertask2")
+    assert_equal "superwadus2", Store.to_s
+  end   
 
   def test_after_and_before
     task   :super_task do Store << "wadus" ; end
